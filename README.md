@@ -20,7 +20,7 @@ Two usages:
 
 Print availabilities on specific dates: `python print_availability.py 2022-03-05 2022-03-12`
 
-Just print out availability for next two weeks: `python print_availability.py`
+Just print out availability for next three weeks: `python print_availability.py`
 
 I added lines to my .bashrc to alias both these functions so I don't have to cd to the directory: 
 

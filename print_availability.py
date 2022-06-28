@@ -15,13 +15,13 @@ import sys
 # script modified from https://developers.google.com/calendar/api/quickstart/python
 
 tz = pytz.timezone('US/Eastern') # timezone to use
-START_HOUR = 9 # start time (24 hour time) of availability period
+START_HOUR = 10 # start time (24 hour time) of availability period
 END_HOUR = 17 # end time (24 hour time) of availability period
 CALENDAR_IDS = ['primary', 'ep432@cornell.edu'] # Google calendars to draw from
 MIN_TIME_INTERVAL_LENGTH_IN_MINUTES = 30 # don't print out availabilities shorter than this
 BASE_PATH = '/Users/emmapierson/Desktop/print_google_calendar_availability/' # name of folder where you store script and credentials. 
 CREDENTIALS_NAME_DOWNLOADED_FROM_GOOGLE = 'google_calendar_credentials.json' # filename you use for credentials. 
-
+NO_MEETING_DAYS = ['Friday', 'Saturday', 'Sunday']
 
 if len(sys.argv) == 3:
     start_datestring = [int(a) for a in sys.argv[1].split('-')]
@@ -31,12 +31,12 @@ if len(sys.argv) == 3:
 else:
     assert len(sys.argv) == 1
     today = datetime.date.today()
-    two_weeks_later = today + datetime.timedelta(days=14)
+    three_weeks_later = today + datetime.timedelta(days=21)
     START_DATETIME = tz.localize(datetime.datetime(today.year, today.month, today.day, START_HOUR))
-    END_DATETIME = tz.localize(datetime.datetime(two_weeks_later.year, two_weeks_later.month, two_weeks_later.day, END_HOUR))
+    END_DATETIME = tz.localize(datetime.datetime(three_weeks_later.year, three_weeks_later.month, three_weeks_later.day, END_HOUR))
 
 print("*****Printing availabilities between %s and %s of at least %i minutes" % ('-'.join(str(START_DATETIME).split('-')[:-1]), '-'.join(str(END_DATETIME).split('-')[:-1]), MIN_TIME_INTERVAL_LENGTH_IN_MINUTES))
-print("Drawing from calendars with IDs", CALENDAR_IDS, 'using timezone', tz)
+print("Drawing from calendars with IDs", CALENDAR_IDS, 'using timezone', tz, 'skipping days', NO_MEETING_DAYS)
 print("Feel free to change all these options by changing the relevant variables at the top of the script")
 print("Your availabilities are")
 # If modifying these scopes, delete the file token.json.
@@ -93,7 +93,7 @@ def main():
         while current_time < END_DATETIME:
             if current_time.hour == END_HOUR: # at the end of the day, go to the next day. 
                 current_time = current_time + datetime.timedelta(days=1) + datetime.timedelta(hours=START_HOUR - END_HOUR)
-            while current_time.strftime("%A") in ['Saturday', 'Sunday']: # skip weekends.
+            while current_time.strftime("%A") in NO_MEETING_DAYS: 
                 current_time = current_time + datetime.timedelta(days=1)
             all_potential_free_intervals.append([current_time, current_time + time_interval_delta])
             current_time = current_time + time_interval_delta
