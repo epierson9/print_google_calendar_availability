@@ -14,7 +14,7 @@ import sys
 
 # script modified from https://developers.google.com/calendar/api/quickstart/python
 
-tz = pytz.timezone('US/Eastern') # timezone to use
+tz = pytz.timezone('America/New_York') # timezone to use
 START_HOUR = 10 # start time (24 hour time) of availability period
 END_HOUR = 17 # end time (24 hour time) of availability period
 CALENDAR_IDS = ['primary', 'ep432@cornell.edu'] # Google calendars to draw from
@@ -89,9 +89,11 @@ def main():
         current_time = START_DATETIME
         while current_time < END_DATETIME:
             if current_time.hour == END_HOUR: # at the end of the day, go to the next day. 
-                current_time = current_time + datetime.timedelta(days=1) + datetime.timedelta(hours=START_HOUR - END_HOUR)
+                current_time = current_time + datetime.timedelta(days=1)
+                current_time = tz.localize(datetime.datetime(current_time.year, current_time.month, current_time.day, START_HOUR))
             while current_time.strftime("%A") in NO_MEETING_DAYS: 
                 current_time = current_time + datetime.timedelta(days=1)
+                current_time = tz.localize(datetime.datetime(current_time.year, current_time.month, current_time.day, START_HOUR))
             all_potential_free_intervals.append([current_time, current_time + time_interval_delta])
             current_time = current_time + time_interval_delta
 
@@ -100,6 +102,7 @@ def main():
         for interval_start, interval_end in all_potential_free_intervals:
             is_free = True
             assert interval_start < interval_end
+
             for busy_interval in unified_busy_list:
                 assert busy_interval['start'] < busy_interval['end']
                 no_overlap = (interval_end <= busy_interval['start']) or (interval_start >= busy_interval['end'])
@@ -112,6 +115,7 @@ def main():
         if len(confirmed_free_intervals) == 0:
             print("No free time in this interval, sorry")
             return
+        
 
         # merge together adjacent intervals. 
         merged_intervals = []
